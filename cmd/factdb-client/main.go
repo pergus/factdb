@@ -72,6 +72,11 @@ Examples:
   factdb-client relationships team-platform --type ownedBy --direction incoming`)
 }
 
+// create sends a request to create a new entity with the specified type and ID.
+// It constructs a JSON payload containing the entity's type and ID, and sends a
+// POST request to the server's /v1/entities endpoint. If the request is
+// successful, it returns nil; otherwise, it returns an error indicating what
+// went wrong during the request process.
 func create(c *http.Client, b string, a []string) error {
 	fs := flag.NewFlagSet("create", flag.ContinueOnError)
 	typ := fs.String("type", "", "entity type")
@@ -85,6 +90,13 @@ func create(c *http.Client, b string, a []string) error {
 	return request(c, "POST", b+"/v1/entities", map[string]any{"id": *id, "type": *typ})
 }
 
+// fact sends a request to add or update a fact for an existing entity. It
+// requires the entity ID, the fact key, and the fact value in JSON format. It
+// also accepts optional flags for the source of the fact and whether the fact
+// is verified. The function constructs a JSON payload with these details and
+// sends a PUT request to the server's /v1/entities/{id}/facts/{key} endpoint.
+// If the request is successful, it returns nil; otherwise, it returns an error
+// indicating what went wrong during the request process.
 func fact(c *http.Client, b string, a []string) error {
 	if len(a) < 3 {
 		return fmt.Errorf("usage: fact ENTITY_ID KEY JSON_VALUE --source NAME [--verified]")
@@ -105,6 +117,14 @@ func fact(c *http.Client, b string, a []string) error {
 	return request(c, "PUT", b+"/v1/entities/"+url.PathEscape(id)+"/facts/"+url.PathEscape(key), map[string]any{"value": v, "source": *source, "verified": *verified})
 }
 
+// relate sends a request to create a new relationship between two entities. It
+// requires the IDs of the source and target entities, as well as the type of
+// the relationship. It also accepts optional flags for the source of the
+// relationship and a unique identifier for the relationship. The function
+// constructs a JSON payload with these details and sends a POST request to the
+// server's /v1/relationships endpoint. If the request is successful, it returns
+// nil; otherwise, it returns an error indicating what went wrong during the
+// request process.
 func relate(c *http.Client, b string, a []string) error {
 	if len(a) < 3 {
 		return fmt.Errorf("usage: relate FROM_ID RELATIONSHIP TO_ID --source NAME [--id RELATIONSHIP_ID]")
@@ -119,6 +139,13 @@ func relate(c *http.Client, b string, a []string) error {
 	return request(c, "POST", b+"/v1/relationships", map[string]any{"id": *id, "fromId": from, "type": typ, "toId": to, "source": *source})
 }
 
+// relationships sends a request to retrieve relationships associated with a
+// specific entity. It requires the entity ID and accepts optional flags for
+// filtering by relationship type, source, and direction (outgoing, incoming, or
+// both). The function constructs a query string with these parameters and sends
+// a GET request to the server's /v1/entities/{id}/relationships endpoint. If
+// the request is successful, it returns nil; otherwise, it returns an error
+// indicating what went wrong during the request process.
 func relationships(c *http.Client, b string, a []string) error {
 	if len(a) < 1 {
 		return fmt.Errorf("usage: relationships ENTITY_ID [--type TYPE] [--direction outgoing|incoming|both]")
@@ -151,6 +178,10 @@ func relationships(c *http.Client, b string, a []string) error {
 	return request(c, "GET", endpoint+q.Encode(), nil)
 }
 
+// get sends a request to retrieve the details of a specific entity by its ID.
+// It constructs a GET request to the server's /v1/entities/{id} endpoint. If
+// the request is successful, it returns nil; otherwise, it returns an error
+// indicating what went wrong during the request process.
 func get(c *http.Client, b string, a []string) error {
 	if len(a) != 1 {
 		return fmt.Errorf("usage: get ENTITY_ID")
@@ -158,6 +189,13 @@ func get(c *http.Client, b string, a []string) error {
 	return request(c, "GET", b+"/v1/entities/"+url.PathEscape(a[0]), nil)
 }
 
+// queryIP sends a request to query entities based on their associated IP
+// addresses It requires a CIDR notation string to specify the IP subnet and
+// accepts optional flags for filtering by entity type and whether only verified
+// IP facts should be considered. The function constructs a JSON payload with
+// these details and sends a POST request to the server's /v1/query/ip-in-subnet
+// endpoint. If the request is successful, it returns nil; otherwise, it returns
+// an error indicating what went wrong during the request process.
 func queryIP(c *http.Client, b string, a []string) error {
 	if len(a) < 1 {
 		return fmt.Errorf("usage: query-ip CIDR [--type TYPE] [--verified]")
@@ -172,6 +210,11 @@ func queryIP(c *http.Client, b string, a []string) error {
 	return request(c, "POST", b+"/v1/query/ip-in-subnet", map[string]any{"cidr": cidr, "type": *typ, "requireVerified": *verified})
 }
 
+// request sends an HTTP request to the specified endpoint with the given method
+// and body. It constructs the request, sets the appropriate headers, and sends
+// it using the provided HTTP client. The response is read and printed in a
+// pretty JSON format. If the response status code indicates an error, it
+// returns an error with the status message; otherwise, it returns nil.
 func request(c *http.Client, method, endpoint string, body any) error {
 	var r io.Reader
 	if body != nil {

@@ -231,4 +231,4 @@ An empty `type` matches every entity type. Invalid or missing CIDRs return `400 
 
 ## Limitations
 
-FactDB is a demonstrator, not a production database. It has no authentication or authorization, schema enforcement, pagination, entity deletion, relationship deletion, fact history, or source conflict resolution. Mutations rewrite the JSON snapshot, so this design is intended for small inventories. Subnet lookup scans distinct indexed IPs and may need a radix tree for very large inventories. `verified` is only a boolean, not a trust policy; IP membership does not prove that a host is reachable.
+FactDB is a demonstrator, not a production database. It has no authentication or authorization, schema enforcement, pagination, entity deletion, relationship deletion, fact history, or source conflict resolution. Mutations rewrite the JSON snapshot, so this design is intended for small inventories. Subnet lookup scans distinct indexed IPs and may need a radix tree for very large inventories. `verified` is only a boolean, not a trust policy.
