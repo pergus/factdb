@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list-all
+
+  build:
+    desc: Build the server and client
+    cmds:
+      - mkdir -p bin
+      - go build -o bin/factdb-server ./cmd/factdb-server
+      - go build -o bin/factdb-client ./cmd/factdb-client
+  clean:
+    desc: Clean up build artifacts
+    cmds:
+      - rm -rf bin
+
+  server:
+    desc: Run the server
+    cmds:
+      - ./bin/factdb-server
+
+  seed-demo:
+    desc: Seed the running server with demo data
+    cmds:
+      - bash scripts/seed-demo.sh
